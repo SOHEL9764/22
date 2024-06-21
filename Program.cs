@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 var keyVaultName = "kvyoutubedemowithdotnet";
 if (!string.IsNullOrEmpty(keyVaultName))
 {
-    var keyVaultUri = new Uri($"https://kvyoutubedemowithdotnet.vault.azure.net/");
+    var keyVaultUri = new Uri($"https://{KeyVaultName}.vault.azure.net/");
     builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
 }
 
