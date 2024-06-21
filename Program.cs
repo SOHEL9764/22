@@ -1,26 +1,32 @@
 using Azure.Identity;
-using Microsoft.Extensions.Configuration;
-using SampleWebApp.Model;
+using Azure.Security.KeyVault.Secrets;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Azure Key Vault
-var keyVaultName = "kvyoutubedemowithdotnet";
+var keyVaultName = builder.Configuration["KeyVault:Name"];
 if (!string.IsNullOrEmpty(keyVaultName))
 {
-    var keyVaultUri = new Uri($"https://{KeyVaultName}.vault.azure.net/");
+    var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
     builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
+
+    var client = new SecretClient(keyVaultUri, new DefaultAzureCredential());
+    var secret = client.GetSecret(builder.Configuration["KeyVault:SecretName"]).Value;
+    
+    builder.Services.AddDbContext<SampleDatabaseContext>(options =>
+    {
+        options.UseSqlServer(secret.Value);
+    });
 }
 
-// Register DAL as a service
-builder.Services.AddSingleton<DAL>();
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddDbContext<SampleDatabaseContext>(options =>
+    {
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    });
+}
 
-// Add services to the container
-builder.Services.AddRazorPages();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
