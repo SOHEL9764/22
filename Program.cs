@@ -5,7 +5,7 @@ using SampleWebApp.Model;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Azure Key Vault
-var keyVaultName = builder.Configuration["KeyVaultName"];
+var keyVaultName = "kvyoutubedemowithdotnet";
 if (!string.IsNullOrEmpty(keyVaultName))
 {
     var keyVaultUri = new Uri($"https://kvyoutubedemowithdotnet.vault.azure.net/");
